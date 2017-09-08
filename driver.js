@@ -6,16 +6,34 @@ const path = require('path')
 const cheerio = require('cheerio')
 const async = require('async')
 
-let albumURL = 'http://tu.hanhande.com/cos/7042311.shtml'
-let pageList = ['http://tu.hanhande.com/scy/scy_7.shtml','http://tu.hanhande.com/scy/scy_8.shtml']
-let albumList = ['http://tu.hanhande.com/cos/7042311.shtml', 'http://tu.hanhande.com/cos/7042221.shtml']
+const CONFIG = {
+    startPage: 6,   //开始页码
+    endPage: 8,     //结束页码，不能小于开始页码
+    currentImgType: 'scy',  //要下载的图片类型，详见下面的IMGTYPE
+    download: true,     //是否下载图片，否的话只保存JSON文件
+    downloadDelay: 1    //每次下载之间的最大可能间隙
+}
+
+const IMGTYPE = {
+    ecy: 'http://tu.hanhande.com/ecy/ecy_',
+    scy: 'http://tu.hanhande.com/scy/scy_',
+    cos: 'http://tu.hanhande.com/cos/cos_'
+}
+
+let jsonFileName = '/' + CONFIG.currentImgType + '-' + CONFIG.startPage + '-' + CONFIG.endPage + '.json'
+let pageList = []
+let currentType = IMGTYPE[CONFIG.currentImgType]
+for(let i = CONFIG.startPage; i <= CONFIG.endPage; i++){
+    pageList.push(currentType + i + '.shtml')
+}
 
 function saveData(pics){
     let folder = 'data'
-    if(!fs.existsSync(folder)){
+    if(!fs.existsSync(folder)){     //新建一个文件夹之前你首先也要判断
         fs.mkdirSync(folder)
     }
-    fs.writeFile(folder + '/data.json', JSON.stringify(pics),function (err) {
+    // fs.writeFile(folder + '/data.json', JSON.stringify(pics),function (err) {
+    fs.writeFile(folder + jsonFileName, JSON.stringify(pics),function (err) {
         if(err){
             return console.log(err)
         }
@@ -23,28 +41,34 @@ function saveData(pics){
     })
 }
 
+// const CONCUR = 5
+// let concurrency = 0
+
 function downloadIMG(urls) {
     let folder = 'img'
     if(!fs.existsSync(folder)){
         fs.mkdirSync(folder)
     }
+    // async.mapLimit(urls, CONCUR, function (url, callback) {      //一并发就会炸
     async.mapSeries(urls, function (url, callback) {
         http.get(url,function (res) {
             let data = ''
             res.setEncoding('binary')
+            // concurrency++
             console.log('downloading: '+ path.basename(url))
             res.on('data',function (chunk) {
                 data += chunk
             })
             res.on('end',function () {
-                fs.writeFile(folder + '/' + path.basename(url),data,'binary',function (err){
+                fs.writeFile(folder + '/' + path.basename(url),data,'binary',function (err){    //保存的图片文件名取URL最后一个斜杠之后的信息
                     if(err){
                         return console.log(err)
                     }
-                    let callbackTime = (Math.random() + '0').substr(2,3) * 1
+                    let callbackTime = (Math.random() + '0').substr(2,3) * CONFIG.downloadDelay     //不定时callback
                     // console.log(callbackTime)
                     console.log('img downloaded: '+ path.basename(url))
                     setTimeout(function () {
+                        // concurrency--
                         callback(null, url)
                     }, callbackTime)
 
@@ -97,8 +121,8 @@ let getImageAsync = function (url) {
                     // downloadIMG(picURL)
                 })
                 allData.push(picsList)
-                resolve(picsList)
                 saveData(allData)
+                resolve(picsList)
             }).on('error', function (err) {
                 console.log(error)
             })
@@ -106,12 +130,12 @@ let getImageAsync = function (url) {
     })
 }
 
-let test = Promise.all(pageList.map(getAlbumAsync))
+let driver = Promise.all(pageList.map(getAlbumAsync))
     .then(function (albums) {
         let allAlbums = []
         albums.forEach(function (elem, index) {
             elem.forEach((function (item, index) {
-                allAlbums.push(item)
+                allAlbums.push(item)        //把所有的图片集URL放进一个数组里
             }))
         })
         // allAlbums = allAlbums.slice(0,20)
@@ -120,19 +144,12 @@ let test = Promise.all(pageList.map(getAlbumAsync))
     })
     .then(function (data) {
         let allPics = []
-        // console.log(albumLength)
-        data.forEach(function (elem, index) {
-            elem.forEach(function (item, index) {
-                allPics.push(item)
+        if(CONFIG.download){
+            data.forEach(function (elem, index) {
+                elem.forEach(function (item, index) {
+                    allPics.push(item)          //把所有的图片URL放进一个数组里
+                })
             })
-        })
-        downloadIMG(allPics)
-        /*        async.mapSeries(allPics, function (pic, callback) {
-                    console.log('downloading from: ' + path.basename(pic))
-                    downloadIMG(pic)
-                    setTimeout(function () {
-                        callback(null, pic)
-                    },1000)
-                })*/
+            downloadIMG(allPics)
+        }
     })
-
