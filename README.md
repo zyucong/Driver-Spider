@@ -16,14 +16,14 @@ $ node driver.js
 那位老哥的代码实现使用了几个我没用过的库，他也在README里面说明他使用了Async Await进行并发控制，需要用到Node 7.6及以上版本，而我使用的是6.1*的LTS版，因此打算重新写一个自己能用能看懂的爬虫。可惜那段时间因为各种毕业的事情而分心乏术，最近竟然在谷歌搜到了那篇帖子，~~于是先写了个半成品。~~于是利用空余时间慢慢把坑填上了，用Node.js LTS版即可！
 
 正所谓，技术改变开车~先放重点
-[那位老哥的版本: https://github.com/nieheyong/HanhandeSpider](https://github.com/nieheyong/HanhandeSpider)
-[我的版本: https://github.com/zyucong/Driver-Spider](https://github.com/zyucong/Driver-Spider)
-[福利图网站点此](http://tu.hanhande.com/ecy/)
+[那位老哥的版本: https://github.com/nieheyong/HanhandeSpider](https://github.com/nieheyong/HanhandeSpider)<br>
+[我的版本: https://github.com/zyucong/Driver-Spider](https://github.com/zyucong/Driver-Spider)<br>
+[福利图网站点此](http://tu.hanhande.com/ecy/)<br>
 
 <!--more-->
 
 # 使用的库
-`cheerio`，在NodeJS端实现jQuery
+`cheerio`，在NodeJS端实现jQuery<br>
 `async`，实现串行下载（因为并发开车会崩）
 ```js
 const http = require('http')
@@ -178,7 +178,7 @@ let driver = Promise.all(pageList.map(getAlbumAsync))
 ```
 
 ## 保存图片URL至JSON文件
-之前已经介绍过，每获取完一个图册里的所有图片URL，就执行saveData()函数，把这些URL保存到json文件中。使用了nodejs自带的File System，调用writeFile()方法，将图片URL数据异步写入JSON文件。
+之前已经介绍过，每获取完一个图册里的所有图片URL，就执行saveData()函数，把这些URL保存到json文件中。使用了nodejs内置的File System，调用writeFile()方法，将图片URL数据异步写入JSON文件。
 ```js
 const folderJSON = 'data'	//可自定义存储JSON文件的文件夹名
 if(!fs.existsSync(folderJSON)){     //新建一个文件夹之前你首先也要判断
@@ -262,9 +262,11 @@ img downloaded: 4182591_103342_9570.jpg
 
 # 总结
 这个网站像是那种右下角弹窗常见的网站，没什么原创内容，更新也慢。不过DOM有规律，缩略图其实就是原图这个设定让爬虫简单了不少，感谢。
-跟原版相比，部分借鉴了那位老哥的代码逻辑，重写了爬虫实现的代码，适配了一下node.js LTS版，优化了用户体验，修改了一下数据保存的逻辑，放弃获取图册名保存到JSON文件里或作为图片文件名。首先原网页的编码是GB2312，直接获取中文文本会得到乱码，而且这些所谓的图册名无非就是“丰满”、“性感”、“唯美”这几个词轮着用，这些图也不是他们原创的，图册名也不重要，处理这个还得再整个库，之后的JSON格式还会变得复杂，没啥必要
+跟原版相比，部分借鉴了那位老哥的代码逻辑，重写了爬虫实现的代码，适配了一下node.js LTS版，优化了用户体验，修改了一下数据保存的逻辑。
+
+比如，放弃获取图册名保存到JSON文件里或作为图片文件名。首先原网页的编码是GB2312，直接获取中文文本会得到乱码，而且这些所谓的图册名无非就是“丰满”、“性感”、“唯美”这几个词轮着用，这些图也不是他们原创的，图册名也不重要，处理这个还得再整个库，之后的JSON格式还会变得复杂，没啥必要。
+
 还有每次保存的json文件名都不同，比如`scy-3-9.json`文件保存的就是三次元分类第3至第9页的图片URL信息，让你心里有点b数，知道哪几页存了。图片都保存在同一个文件夹里，方便查阅，不然每次下载的图片都放在不同的文件夹里看起来多费劲不是~
-[完整代码  https://github.com/zyucong/Driver-Spider/blob/master/driver.js](https://github.com/zyucong/Driver-Spider/blob/master/driver.js)
 
 # 参考资料
 [Node.js官方文档](https://nodejs.org/dist/latest-v6.x/docs/api/)
