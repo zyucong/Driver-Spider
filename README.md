@@ -15,7 +15,7 @@ $ node driver.js
 
 那位老哥的代码实现使用了几个我没用过的库，他也在README里面说明他使用了Async Await进行并发控制，需要用到Node 7.6及以上版本，而我使用的是6.1*的LTS版，因此打算重新写一个自己能用能看懂的爬虫。可惜那段时间因为各种毕业的事情而分心乏术，最近竟然在谷歌搜到了那篇帖子，~~于是先写了个半成品。~~于是利用空余时间慢慢把坑填上了，用Node.js LTS版即可！
 
-正所谓，技术改变开车~先放重点
+正所谓，技术改变开车~先放重点<br>
 [那位老哥的版本: https://github.com/nieheyong/HanhandeSpider](https://github.com/nieheyong/HanhandeSpider)<br>
 [我的版本: https://github.com/zyucong/Driver-Spider](https://github.com/zyucong/Driver-Spider)<br>
 [福利图网站点此](http://tu.hanhande.com/ecy/)<br>
@@ -269,5 +269,5 @@ img downloaded: 4182591_103342_9570.jpg
 还有每次保存的json文件名都不同，比如`scy-3-9.json`文件保存的就是三次元分类第3至第9页的图片URL信息，让你心里有点b数，知道哪几页存了。图片都保存在同一个文件夹里，方便查阅，不然每次下载的图片都放在不同的文件夹里看起来多费劲不是~
 
 # 参考资料
-[Node.js官方文档](https://nodejs.org/dist/latest-v6.x/docs/api/)
+[Node.js官方文档](https://nodejs.org/dist/latest-v6.x/docs/api/)<br>
 [async官方文档--mapSeries方法](https://caolan.github.io/async/docs.html#mapSeries)
